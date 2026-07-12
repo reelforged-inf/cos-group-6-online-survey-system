@@ -16,7 +16,6 @@ def create_app():
 
     app.config.from_object(DevelopmentConfig)
 
-    print(app.config["SQLALCHEMY_DATABASE_URI"])
 
     db.init_app(app)
     migrate.init_app(app, db)
