@@ -1,7 +1,7 @@
 from flask import Flask
 
 from app.config import DevelopmentConfig
-
+from flask_cors import CORS
 from app.extensions import (
     db,
     migrate,
@@ -13,6 +13,10 @@ from app.extensions import (
 def create_app():
 
     app = Flask(__name__)
+
+    CORS(app, resources={r"/api/*": {"origins": "http://127.0.0.1:5501"}},
+         supports_credentials=True
+    )
 
     app.config.from_object(DevelopmentConfig)
 

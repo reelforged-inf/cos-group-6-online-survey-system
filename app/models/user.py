@@ -1,6 +1,8 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
-from app.extensions import db, bcrypt
+from flask import current_app
+
+from app.extensions import db, bcrypt, jwt
 
 from enum import Enum
 
@@ -49,23 +51,24 @@ class User(db.Model):
         nullable=False
     )
 
-    surveys = db.relationship(
-        "Survey",
-        back_populates="creator",
-        cascade="all, delete-orphan"
-    )
+    # surveys = db.relationship(
+    #     "Survey",
+    #     back_populates="creator",
+    #     cascade="all, delete-orphan"
+    # )
 
-    responses = db.relationship(
-        "Response",
-        back_populates="respondent",
-        cascade="all, delete-orphan"
-    )
+    # responses = db.relationship(
+    #     "Response",
+    #     back_populates="respondent",
+    #     cascade="all, delete-orphan"
+    # )
 
     def set_password(self, password):
         self.password_hash = bcrypt.generate_password_hash(password).decode("utf-8")
 
     def check_password(self, password):
         return bcrypt.check_password_hash(self.password_hash, password)
+
 
     def to_dict(self):
         return {
