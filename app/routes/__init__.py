@@ -5,3 +5,9 @@ auth_bp = Blueprint(
     __name__,
     url_prefix="/api/auth"
 )
+
+survey_bp = Blueprint(
+    "survey",
+    __name__,
+    url_prefix="/api/surveys"
+)

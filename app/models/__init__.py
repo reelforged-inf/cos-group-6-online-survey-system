@@ -1,6 +1,6 @@
-from .user import User
-# from .survey import Survey
-# from .question import Question
-# from .option import Option
-# from .response import Response
-# from .answer import Answer
+from .user import User, UserRole
+from .survey import Survey
+from .question import Question
+from .option import Option
+from .response import Response
+from .answer import Answer

@@ -62,7 +62,7 @@ def login_user(email, password):
             "message": "Invalid email or password."
         }
     
-    login_token = create_access_token(identity=user.id)
+    login_token = create_access_token(identity=str(user.id))
     
     return {
         "success": True,
