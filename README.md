@@ -1,232 +1,411 @@
-# COS Group 6 Online Survey System
+# HexaSurvey Backend API
 
-A web-based online survey system that allows users to create, distribute, complete, and analyze surveys.
+A RESTful backend for the **HexaSurvey Online Survey System**, developed as part of the **COS 121 (Information Systems)** group project.
+
+The backend provides secure authentication, survey management, response collection, and analytics through a REST API built with **Flask**.
+
+---
 
 ## Project Overview
 
-The system is designed to provide a simple and user-friendly platform where survey creators can:
+HexaSurvey allows users to:
 
-* Create and manage surveys
-* Add different types of questions
-* Publish surveys
-* Share surveys through public links and email
-* Collect responses
-* Analyze survey results using totals, percentages, averages where applicable, and charts
+- Register as a Survey Creator or Respondent
+- Create and publish surveys
+- Share surveys using unique links
+- Submit responses
+- Prevent duplicate submissions
+- View survey analytics
+
+---
 
 ## Technology Stack
 
-* Python
-* Flask
-* Jinja
-* SQLite
-* HTML
-* CSS
-* JavaScript
+| Component | Technology |
+|-----------|------------|
+| Language | Python 3 |
+| Framework | Flask |
+| Database | SQLite |
+| ORM | SQLAlchemy |
+| Authentication | JWT (Flask-JWT-Extended) |
+| Database Migration | Flask-Migrate |
+| Password Hashing | Flask-Bcrypt |
+| CORS | Flask-CORS |
 
-## Architecture
+---
 
-The project uses a modular hybrid Flask architecture.
+# Project Structure
 
-* Flask handles application routes, backend logic, authentication, database operations, analytics, and email services.
-* Jinja handles server-side rendering of HTML pages.
-* HTML, CSS, and JavaScript handle the user interface and browser interactions.
-* Selective JSON endpoints may be used where dynamic interactions are useful.
-* SQLite stores application data.
-
-The frontend and backend teams work within the same codebase.
-
-## Core MVP Features
-
-### Authentication
-
-* Register
-* Login
-* Logout
-
-### Survey Management
-
-* Create survey
-* Edit survey
-* Delete survey
-* Publish survey
-
-### Question Types
-
-* Short Answer
-* Paragraph
-* Multiple Choice
-* Checkbox
-
-### Response Collection
-
-* Open public survey
-* Submit answers
-* Store responses
-* Display thank-you page
-
-### Survey Distribution
-
-* Public shareable link
-* Email invitation
-* WhatsApp sharing link
-
-### Analytics
-
-* Total responses
-* Multiple-choice percentages
-* Averages where applicable
-* Simple charts
-
-## Project Structure
-
-```text
-cos-group-6-online-survey-system/
+```
+backend/
 │
 ├── app/
-│   ├── __init__.py
-│   ├── templates/
-│   └── static/
-│       ├── css/
-│       ├── js/
-│       └── images/
+│   ├── models/
+│   ├── routes/
+│   ├── services/
+│   ├── utils/
+│   ├── extensions.py
+│   ├── config.py
+│   └── __init__.py
 │
-├── tests/
-├── .gitignore
-├── requirements.txt
+├── migrations/
+├── instance/
 ├── run.py
+├── requirements.txt
 └── README.md
 ```
 
-The structure will grow gradually as real modules are implemented.
+---
 
-## Local Development Setup
+# Features
 
-### 1. Clone the repository
+## Authentication
 
-```bash
-git clone https://github.com/reelforged-inf/cos-group-6-online-survey-system.git
+- User Registration
+- User Login
+- User Logout
+- JWT Authentication
+- Role-based Authorization
+
+Supported roles
+
+- Creator
+- Respondent
+
+---
+
+## Survey Management
+
+Creators can
+
+- Create surveys
+- View their surveys
+- Update surveys
+- Delete surveys
+- Publish surveys
+
+---
+
+## Survey Builder
+
+Supported question types
+
+- Short Answer
+- Paragraph
+- Multiple Choice
+
+Questions and options are submitted together when publishing the survey.
+
+---
+
+## Survey Sharing
+
+Published surveys receive a unique share token.
+
+Example
+
+```
+/api/surveys/share/ABCD1234
 ```
 
-### 2. Enter the project directory
+Only published surveys are accessible.
 
-```bash
-cd cos-group-6-online-survey-system
+---
+
+## Response Submission
+
+Respondents can
+
+- Open shared surveys
+- Submit responses
+- Submit only once per survey
+
+---
+
+## Analytics
+
+Creators can view
+
+- Total responses
+- Response counts
+- Percentages
+- Chart-ready analytics
+
+---
+
+# API Base URL
+
+Development
+
+```
+http://127.0.0.1:5000/api
 ```
 
-### 3. Create a virtual environment
+Production
+
+```
+https://your-domain.com/api
+```
+
+---
+
+# Authentication
+
+Most endpoints require authentication.
+
+Authentication uses **JWT stored in HTTP-only cookies**.
+
+Frontend requests should include
+
+```javascript
+credentials: "include"
+```
+
+---
+
+# API Endpoints
+
+## Authentication
+
+| Method | Endpoint |
+|---------|----------|
+| POST | /auth/register |
+| POST | /auth/login |
+| POST | /auth/logout |
+
+---
+
+## Surveys
+
+| Method | Endpoint |
+|---------|----------|
+| GET | /surveys |
+| POST | /surveys |
+| GET | /surveys/{id} |
+| PUT | /surveys/{id} |
+| DELETE | /surveys/{id} |
+| POST | /surveys/{id}/publish |
+
+---
+
+## Public Survey
+
+| Method | Endpoint |
+|---------|----------|
+| GET | /surveys/share/{share_token} |
+
+---
+
+## Responses
+
+| Method | Endpoint |
+|---------|----------|
+| POST | /surveys/share/{share_token}/submit |
+
+---
+
+## Analytics
+
+| Method | Endpoint |
+|---------|----------|
+| GET | /surveys/{id}/analytics |
+
+---
+
+# Standard Success Response
+
+```json
+{
+    "success": true,
+    "message": "Operation completed successfully.",
+    "data": {}
+}
+```
+
+---
+
+# Standard Error Response
+
+```json
+{
+    "success": false,
+    "message": "Validation failed."
+}
+```
+
+---
+
+# HTTP Status Codes
+
+| Code | Description |
+|------|-------------|
+| 200 | OK |
+| 201 | Created |
+| 400 | Bad Request |
+| 401 | Unauthorized |
+| 403 | Forbidden |
+| 404 | Not Found |
+| 409 | Conflict |
+| 500 | Internal Server Error |
+
+---
+
+# Installation
+
+Clone the repository
+
+```bash
+git clone <repository-url>
+```
+
+Move into the project
+
+```bash
+cd backend
+```
+
+Create a virtual environment
 
 ```bash
 python -m venv .venv
 ```
 
-### 4. Activate the virtual environment
+Activate the virtual environment
 
-#### Git Bash
-
-```bash
-source .venv/Scripts/activate
-```
-
-#### Windows PowerShell
-
-```powershell
-.\.venv\Scripts\Activate.ps1
-```
-
-After activation, the terminal should normally display:
-
-```text
-(.venv)
-```
-
-### 5. Install dependencies
+Windows
 
 ```bash
-python -m pip install -r requirements.txt
+.venv\\Scripts\\activate
 ```
 
-### 6. Run the application
+Linux/macOS
+
+```bash
+source .venv/bin/activate
+```
+
+Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+# Environment Variables
+
+Create a `.env` file.
+
+Example
+
+```env
+SECRET_KEY=your-secret-key
+
+JWT_SECRET_KEY=your-jwt-secret
+
+DATABASE_URL=sqlite:///instance/survey.db
+```
+
+---
+
+# Database Migration
+
+Initialize migrations
+
+```bash
+flask db init
+```
+
+Generate migration
+
+```bash
+flask db migrate -m "Initial migration"
+```
+
+Apply migration
+
+```bash
+flask db upgrade
+```
+
+---
+
+# Running the Application
 
 ```bash
 python run.py
 ```
 
-### 7. Open the application
+The server starts at
 
-Open the local Flask address shown in the terminal, normally:
-
-```text
+```
 http://127.0.0.1:5000
 ```
 
-## Git Workflow
+---
 
-Do not develop new features directly on `main`.
+# Frontend Integration
 
-Before starting a new task:
+Every authenticated request should include
 
-```bash
-git switch main
-git pull origin main
-git switch -c feature/task-name
+```javascript
+fetch(url, {
+    credentials: "include"
+});
 ```
 
-After completing work:
+The frontend communicates with the backend using JSON.
 
-```bash
-git status
-git add .
-git commit -m "feat: describe completed work"
-git push -u origin feature/task-name
-```
+---
 
-Then open a Pull Request for review before merging into `main`.
+# Business Rules
 
-## Branch Naming Convention
+- Only Creators can create or manage surveys.
+- Only Respondents can submit survey responses.
+- Only published surveys are accessible.
+- A respondent can submit only one response per survey.
+- Creators can only access surveys they own.
+- Analytics are only available to the survey owner.
 
-Examples:
+---
 
-```text
-feature/login-ui
-feature/authentication
-feature/survey-crud
-feature/question-builder
-feature/analytics
+# Current Implementation Status
 
-fix/login-error
-fix/response-validation
+| Feature | Status |
+|----------|--------|
+| Authentication | ✅ |
+| Survey CRUD | ✅ |
+| Publish Survey | ✅ |
+| Public Survey | ✅ |
+| Submit Responses | ✅ |
+| Duplicate Submission Prevention | ✅ |
+| Analytics | ✅ |
+| Email Distribution | 🚧 Planned |
 
-docs/setup-guide
+---
 
-test/survey-submission
-```
+# Future Improvements
 
-## Commit Message Convention
+- Email invitations
+- Social media sharing
+- CSV export
+- PDF reports
+- Dashboard statistics
+- Advanced analytics
+- Password reset
 
-Use clear commit messages:
+---
 
-```text
-feat: add creator login
-fix: correct analytics percentage
-docs: update local setup guide
-test: add survey submission tests
-chore: configure Flask application
-refactor: reorganize survey routes
-```
+# Team
 
-## Team Structure
-
-* Frontend Team
-* Backend Team
-* Testing Team
-* Documentation Team
-
-## Project Information
-
-**Project:** Online Survey System
-
-**Group:** COS Group 6
+**Project:** COS 121 Online Survey System
 
 **Department:** Information Systems
 
 **Backend Lead:** Isuho Friday
+
+---
+
+# License
+
+This project was developed for academic purposes as part of the COS 121 course.
