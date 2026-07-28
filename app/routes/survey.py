@@ -49,11 +49,10 @@ def create():
 def get_surveys():
 
     try:
-        # creator_id = int(get_jwt_identity()) 
-        creator_id = 3
+        creator_id = int(get_jwt_identity()) 
+        
 
         surveys = get_creator_surveys(creator_id)
-        # surveys = get_creator_surveys(int(3))
 
         return success_response(
             message="Surveys retrieved successfully.",
@@ -81,7 +80,7 @@ def get_single_survey(survey_id):
 
     try:
         creator_id = int(get_jwt_identity())
-        # creator_id = 3
+       
         survey = get_survey(
             survey_id,
             creator_id

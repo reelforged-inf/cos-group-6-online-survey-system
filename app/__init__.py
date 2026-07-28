@@ -25,6 +25,7 @@ def create_app():
                     "http://localhost:5501",
                     "http://10.176.84.179:5501",
                     "https://hexa-survey.vercel.app",
+                    "https://hexa-survey.vercel.app/",
                 ]
             }
         },
