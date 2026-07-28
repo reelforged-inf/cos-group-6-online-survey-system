@@ -20,7 +20,12 @@ def create_app():
         app,
         resources={
             r"/api/*": {
-                "origins": ["http://127.0.0.1:5501", "http://10.176.84.179:5501"]
+                "origins": [
+                    "http://127.0.0.1:5501",
+                    "http://localhost:5501",
+                    "http://10.176.84.179:5501",
+                    "https://hexa-survey.vercel.app",
+                ]
             }
         },
         supports_credentials=True,
