@@ -1,5 +1,6 @@
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from gunicorn.config import User
 
 from app.services.survey_service import (create_survey,  get_creator_surveys, get_survey, update_survey, delete_survey, get_shared_survey)
 from app.services.response_service import submit_response
@@ -22,6 +23,14 @@ def create():
         data = request.get_json()
 
         creator_id = int(get_jwt_identity())
+
+        user = User.query.get(creator_id)
+
+        if not user or user.role.lower() != "creator":
+            return error_response(
+                message="Only creators can create surveys.",
+                status_code=403
+            )
 
         survey = create_survey(
             data=data,
