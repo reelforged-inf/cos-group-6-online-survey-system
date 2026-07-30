@@ -1,6 +1,10 @@
 from flask import Flask
 
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from app.config import config
 from flask_cors import CORS
 from app.extensions import (

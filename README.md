@@ -153,12 +153,15 @@ https://your-domain.com/api
 
 Most endpoints require authentication.
 
-Authentication uses **JWT stored in HTTP-only cookies**.
-
-Frontend requests should include
+Authentication returns a JWT access token. Frontend authenticated requests
+should send it as a Bearer token:
 
 ```javascript
-credentials: "include"
+fetch(url, {
+    headers: {
+        Authorization: `Bearer ${accessToken}`
+    }
+});
 ```
 
 ---
@@ -200,7 +203,63 @@ credentials: "include"
 
 | Method | Endpoint |
 |---------|----------|
-| POST | /surveys/share/{share_token}/submit |
+| POST | /surveys/share/{share_token}/responses |
+
+---
+
+## Email invitations
+
+Creators can email a survey link to up to 20 recipients at once. Each
+recipient receives a separate email, and replies go to the creator who sent it.
+
+| Method | Endpoint |
+|---------|----------|
+| POST | /surveys/{id}/share/email |
+
+```json
+{
+  "emails": ["person@example.com"]
+}
+```
+
+### Frontend integration
+
+The creator must be logged in. Use the `access_token` returned by
+`POST /api/auth/login` as a Bearer token. Send one to 20 email addresses in
+the `emails` array.
+
+```javascript
+const response = await fetch(
+  `${API_BASE_URL}/api/surveys/${surveyId}/share/email`,
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({ emails: recipientEmails }),
+  },
+);
+
+const result = await response.json();
+```
+
+On success, display `result.message` and use `result.data.sent_count` to tell
+the creator how many invitations were sent. Show `result.message` as an error
+when the request fails.
+
+| Status | Frontend behavior |
+|---------|-------------------|
+| 200 | Show the sent count. |
+| 400 | Ask the creator to correct the email addresses. |
+| 403 | Hide this action for respondents; only survey owners may send invitations. |
+| 404 | The survey does not exist or does not belong to the creator. |
+| 502 | Show a temporary email-delivery error and allow retrying. |
+| 503 | Email service configuration is unavailable. |
+
+Do not put Brevo credentials in frontend code. The email is sent by the
+backend, and the `SURVEY_SHARE_URL_TEMPLATE` determines the link included in
+each invitation.
 
 ---
 
@@ -303,8 +362,21 @@ SECRET_KEY=your-secret-key
 
 JWT_SECRET_KEY=your-jwt-secret
 
-DATABASE_URL=sqlite:///instance/survey.db
+
+# SMTP provider settings (configure these in Render)
+MAIL_SERVER=smtp.example.com
+MAIL_PORT=587
+MAIL_USE_TLS=true
+MAIL_USERNAME=your-smtp-username
+MAIL_PASSWORD=your-smtp-password
+MAIL_DEFAULT_SENDER=noreply@yourdomain.com
+
+# The public frontend route where a recipient completes a survey
+SURVEY_SHARE_URL_TEMPLATE=https://your-frontend-domain.com/survey/{share_token}
 ```
+
+Copy `.env.example` to `.env`, then replace the placeholder values. The `.env`
+file is ignored by Git and is loaded automatically when the application starts.
 
 ---
 
@@ -346,11 +418,13 @@ http://127.0.0.1:5000
 
 # Frontend Integration
 
-Every authenticated request should include
+Every authenticated request should include the login access token:
 
 ```javascript
 fetch(url, {
-    credentials: "include"
+    headers: {
+        Authorization: `Bearer ${accessToken}`
+    }
 });
 ```
 
@@ -386,7 +460,6 @@ The frontend communicates with the backend using JSON.
 
 # Future Improvements
 
-- Email invitations
 - Social media sharing
 - CSV export
 - PDF reports
